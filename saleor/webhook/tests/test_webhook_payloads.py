@@ -10,6 +10,7 @@ from ...product.models import ProductVariant
 from ..payloads import (
     ORDER_FIELDS,
     PRODUCT_VARIANT_FIELDS,
+    generate_invoice_payload,
     generate_order_payload,
     generate_product_variant_payload,
 )
@@ -44,7 +45,6 @@ def test_generate_order_payload(
     assert payload.get("shipping_method")
     assert payload.get("shipping_tax_rate")
     assert payload.get("lines")
-    assert payload.get("payments")
     assert payload.get("shipping_address")
     assert payload.get("billing_address")
     assert payload.get("fulfillments")
@@ -183,3 +183,21 @@ def test_generate_product_variant_deleted_payload(
     assert len(payload["attributes"]) == 2
     assert len(payload["channel_listings"]) == 1
     assert len(payload.keys()) == len(payload_fields)
+
+
+def test_generate_invoice_payload(fulfilled_order):
+    invoice = fulfilled_order.invoices.first()
+    payload = json.loads(generate_invoice_payload(invoice))[0]
+    order = payload["order"]
+
+    assert set(payload.keys()) == {
+        "id",
+        "number",
+        "external_url",
+        "created",
+        "order",
+        "type",
+    }
+    assert set(order.keys()).issuperset(ORDER_FIELDS)
+    assert payload["id"] == graphene.Node.to_global_id("Invoice", invoice.id)
+    assert order["id"] == graphene.Node.to_global_id("Order", invoice.order.id)
