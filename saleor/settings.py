@@ -63,13 +63,13 @@ INTERNAL_IPS = get_list(os.environ.get("INTERNAL_IPS", "127.0.0.1"))
 
 DATABASES = {
     "default": dj_database_url.config(
-        default="postgres://saleor:saleor@localhost:5432/saleor", conn_max_age=600
+        default=os.environ.get("DATABASE_URL", "postgres://saleor:saleor@localhost:5432/saleor"), conn_max_age=600
     )
 }
 
 
-TIME_ZONE = "UTC"
-LANGUAGE_CODE = "en"
+TIME_ZONE = "Asia/Shanghai"
+LANGUAGE_CODE = "zh-hans"
 LANGUAGES = [
     ("ar", "Arabic"),
     ("az", "Azerbaijani"),
